@@ -7,16 +7,15 @@ terraform {
   }
 }
 
-
 provider "azurerm" {
   features {}
 }
 
 resource "azurerm_resource_group" "mtc-rg" {
   name     = "mtc-resources"
-  location = "westus"
+  location = var.rg_location
   tags = {
-    environment = "dev"
+    environment = "${var.environment}"
   }
 }
 
@@ -27,9 +26,8 @@ resource "azurerm_virtual_network" "mtc-vn" {
   location            = azurerm_resource_group.mtc-rg.location
   address_space       = ["10.123.0.0/16"]
 
-
   tags = {
-    environment = "dev"
+    environment = "${var.environment}"
   }
 }
 
@@ -48,7 +46,7 @@ resource "azurerm_network_security_group" "mtc-sg" {
   resource_group_name = azurerm_resource_group.mtc-rg.name
 
   tags = {
-    environment = "dev"
+    environment = "${var.environment}"
   }
 }
 
@@ -61,7 +59,7 @@ resource "azurerm_network_security_rule" "mtc-dev-rule" {
   protocol                    = "*"
   source_port_range           = "*"
   destination_port_range      = "*"
-  source_address_prefix       = "47.144.66.159/32"
+  source_address_prefix       = var.vm_source_ip_address
   destination_address_prefix  = "*"
   resource_group_name         = azurerm_resource_group.mtc-rg.name
   network_security_group_name = azurerm_network_security_group.mtc-sg.name
@@ -82,7 +80,7 @@ resource "azurerm_public_ip" "mtc-ip" {
   allocation_method   = "Dynamic"
 
   tags = {
-    environment = "dev"
+    environment = "${var.environment}"
   }
 }
 
@@ -100,10 +98,9 @@ resource "azurerm_network_interface" "mtc-nic" {
   }
 
   tags = {
-    environment = "dev"
+    environment = "${var.environment}"
   }
 }
-
 
 resource "azurerm_linux_virtual_machine" "mtc-vm" {
   name                = "mtc-vm"
@@ -144,7 +141,7 @@ resource "azurerm_linux_virtual_machine" "mtc-vm" {
   }
 
   tags = {
-    environment = "dev"
+    environment = "${var.environment}"
   }
 }
 
